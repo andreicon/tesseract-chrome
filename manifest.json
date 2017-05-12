@@ -1,0 +1,21 @@
+{
+  "manifest_version": 2,
+  "name": "Tesseract Image OCR",
+  "description": "OCR with Tesseract",
+  "version": "2.0",
+  "permissions": [
+    "activeTab",
+    "http://*/",
+    "https://*/",
+    "tabs",
+    "storage"
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  },
+  "browser_action":{
+    "default_title": "Tesseract Image OCR"
+  },
+  "content_security_policy":"script-src 'self' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.rawgit.com; object-src 'self'"
+}
