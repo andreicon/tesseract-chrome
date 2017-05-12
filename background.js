@@ -3,55 +3,54 @@
 // found in the LICENSE file.
 
 
-if (typeof JSON.retrocycle !== "function") {
-    JSON.retrocycle = function retrocycle($) {
-        "use strict";
-        var px = /^\$(?:\[(?:\d+|"(?:[^\\"\u0000-\u001f]|\\([\\"\/bfnrt]|u[0-9a-zA-Z]{4}))*")\])*$/;
+/*
+ * This function is used to decode the message received from content scripts
+ */
+JSON.retrocycle = function retrocycle($) {
+    "use strict";
+    var px = /^\$(?:\[(?:\d+|"(?:[^\\"\u0000-\u001f]|\\([\\"\/bfnrt]|u[0-9a-zA-Z]{4}))*")\])*$/;
 
-        (function rez(value) {
-            if (value && typeof value === "object") {
-                if (Array.isArray(value)) {
-                    value.forEach(function (element, i) {
-                        if (typeof element === "object" && element !== null) {
-                            var path = element.$ref;
-                            if (typeof path === "string" && px.test(path)) {
-                                value[i] = eval(path);
-                            } else {
-                                rez(element);
-                            }
+    (function rez(value) {
+        if (value && typeof value === "object") {
+            if (Array.isArray(value)) {
+                value.forEach(function (element, i) {
+                    if (typeof element === "object" && element !== null) {
+                        var path = element.$ref;
+                        if (typeof path === "string" && px.test(path)) {
+                            value[i] = eval(path);
+                        } else {
+                            rez(element);
                         }
-                    });
-                } else {
-                    Object.keys(value).forEach(function (name) {
-                        var item = value[name];
-                        if (typeof item === "object" && item !== null) {
-                            var path = item.$ref;
-                            if (typeof path === "string" && px.test(path)) {
-                                value[name] = eval(path);
-                            } else {
-                                rez(item);
-                            }
+                    }
+                });
+            } else {
+                Object.keys(value).forEach(function (name) {
+                    var item = value[name];
+                    if (typeof item === "object" && item !== null) {
+                        var path = item.$ref;
+                        if (typeof path === "string" && px.test(path)) {
+                            value[name] = eval(path);
+                        } else {
+                            rez(item);
                         }
-                    });
-                }
+                    }
+                });
             }
-        }($));
-        return $;
-    };
-}
+        }
+    }($));
+    return $;
+};
+
 
 chrome.browserAction.onClicked.addListener(function() {
 	chrome.tabs.getSelected(null, function(tab){
 		if (!tab.url.match('chrome://')) {
 			chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
-			    console.log(JSON.parse(JSON.retrocycle(msg))) ;
-			    
+				var decodedMessage = JSON.parse(JSON.retrocycle(msg))
+			    console.log(decodedMessage) ;
+			    chrome.storage.sync.set({'value': decodedMessage});
+			    chrome.storage.sync.get(['value'], function(items){console.log(items)});
 			});
-
-			chrome.tabs.executeScript(tab.id, {file: "/jquery.js"});
-			chrome.tabs.executeScript(tab.id, {file: "/tesseract.js"});
-			chrome.tabs.executeScript(tab.id, {file: "/cycle.js"});	        
-			chrome.tabs.executeScript(tab.id, {file: "g.js"});
 		}
 	});
 });

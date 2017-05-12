@@ -17,5 +17,9 @@
   "browser_action":{
     "default_title": "Tesseract Image OCR"
   },
-  "content_security_policy":"script-src 'self' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.rawgit.com; object-src 'self'"
+  "content_security_policy":"script-src 'self' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.rawgit.com; object-src 'self'",
+  "content_scripts": [{
+    "matches": ["http://*/*", "https://*/*"],
+    "js": ["jquery.js", "tesseract.js", "cycle.js","content_script.js"]
+  }]
 }
